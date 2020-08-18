@@ -8,7 +8,7 @@ module.exports = function (evn, argv) {
     return {
         mode: mode,
         devtool: isProduction ? false : "eval-source-map",
-        entry: './src/Fable.Msal.fsproj',
+        entry: './demo/Demo.fsproj',
         output: {
             filename: 'bundle.js',
             path: path.join(__dirname, './public'),
