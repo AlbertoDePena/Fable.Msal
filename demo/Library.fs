@@ -18,10 +18,10 @@
     signOffBtn.addEventListener("click", fun _ -> Msal.SignOut())
 
     loadProfileBtn.addEventListener("click", 
-        fun _ -> Msal.GetProfile() |> ignore)
+        fun _ -> Msal.GetProfile() |> Promise.iter (fun profile -> console.log(profile)))
 
     loadMailBtn.addEventListener("click", 
-        fun _ -> Msal.GetMail() |> ignore)
+        fun _ -> Msal.GetMail() |> Promise.iter (fun mail -> console.log(mail)))
 
     getUserNameBtn.addEventListener("click", 
         fun _ -> console.log (Msal.GetUserName()))

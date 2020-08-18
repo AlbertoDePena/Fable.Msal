@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Fable.Browser.Dom" Version="1.2.0" />
+    <PackageReference Include="Fable.Promise" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
