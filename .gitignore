@@ -1,0 +1,6 @@
+.ionide
+.fable
+bin
+obj
+node_modules
+*.js.map

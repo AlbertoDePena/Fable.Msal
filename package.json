@@ -1,0 +1,21 @@
+{
+    "private": true,
+    "scripts": {
+        "build": "webpack-cli --mode production",
+        "start": "webpack-dev-server"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.0.0",
+        "@babel/polyfill": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "babel-loader": "^8.0.0",
+        "fable-compiler": "^2.10.1",
+        "fable-loader": "^2.1.9",
+        "webpack": "^4.27.1",
+        "webpack-cli": "^3.3.12",
+        "webpack-dev-server": "^3.11.0"
+    },
+    "dependencies": {
+        "@azure/msal-browser": "^2.0.2"
+    }
+}
