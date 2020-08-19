@@ -3,11 +3,6 @@
     open Fable.Msal
     open Browser.Dom
 
-    let map f (computation: Async<'t>) = async {
-        let! x = computation
-        return f x
-    }
-
     Msal.signIn ({
         clientId = "0c89962d-0574-46e7-8644-656286b8c0eb"
         authority = "https://login.microsoftonline.com/dfe6522a-e1ef-4132-a50b-afa26c14bc41"

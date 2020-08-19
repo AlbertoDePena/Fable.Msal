@@ -63,7 +63,8 @@ module Msal =
         return result
     }
 
-    /// Trigger sign in Msal flow
+    /// <summary>Trigger sign in Msal flow</summary>
+    /// <param name="config">Msal configuration</param>
     let signIn (config : MsalConfig) : unit = 
         Interop.signIn config
 
@@ -74,7 +75,7 @@ module Msal =
     /// Get user name from Msal bearer token claims
     let getUserName () : string option =
         let userName = Interop.getUserName ()
-        if System.String.IsNullOrWhiteSpace userName
+        if isNullOrUndefined userName
         then None
         else Some userName
         
