@@ -37,42 +37,55 @@ type MsalConfig = {
     useLoginRedirect : bool }
 
 [<RequireQualifiedAccess>]
-module Msal =
-    
-    let private ofChoice x =
-        match x with
-        | Choice1Of2 o -> Ok o
-        | Choice2Of2 e -> Error e
-
-    let private map f (computation: Async<'t>) = async {
-        let! x = computation
-        return f x
-    }
-
-    let private getUserNameInterop () : string = import "getUserName" "./Msal.js"
-
-    let private getProfileInterop () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
-
-    let private getMailInterop () : GraphMailInfo Promise = import "getMail" "./Msal.js"
+module internal Interop =
 
     let signIn (config : MsalConfig) : unit = import "signIn" "./Msal.js"
 
     let signOut () : unit = import "signOut" "./Msal.js"
 
+    let getUserName () : string = import "getUserName" "./Msal.js"
+
+    let getProfile () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
+
+    let getMail () : GraphMailInfo Promise = import "getMail" "./Msal.js"
+
+[<RequireQualifiedAccess>]
+module Msal =
+    
+    let private toAsyncResult (computation: Async<'t>) = async {
+        let! choice = computation |> Async.Catch
+        
+        let result =
+            match choice with
+            | Choice1Of2 o -> Ok o
+            | Choice2Of2 e -> Error e
+        
+        return result
+    }
+
+    /// Trigger sign in Msal flow
+    let signIn (config : MsalConfig) : unit = 
+        Interop.signIn config
+
+    /// Trigger sign out Msal flow
+    let signOut () : unit = 
+        Interop.signOut ()
+
+    /// Get user name from Msal bearer token claims
     let getUserName () : string option =
-        let userName = getUserNameInterop ()
+        let userName = Interop.getUserName ()
         if System.String.IsNullOrWhiteSpace userName
         then None
         else Some userName
         
+    /// Get user profile from graph API
     let getProfile () : Async<Result<GraphUserInfo, exn>> =
-        getProfileInterop ()
+        Interop.getProfile()
         |> Async.AwaitPromise
-        |> Async.Catch
-        |> map ofChoice
+        |> toAsyncResult
 
+    /// Get user mail from graph API
     let getMail () : Async<Result<GraphMailInfo, exn>> =
-        getMailInterop ()
+        Interop.getMail ()
         |> Async.AwaitPromise
-        |> Async.Catch
-        |> map ofChoice
+        |> toAsyncResult

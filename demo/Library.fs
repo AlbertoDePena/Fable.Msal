@@ -25,10 +25,28 @@
     signOutBtn.addEventListener("click", fun _ -> Msal.signOut())
 
     loadProfileBtn.addEventListener("click", 
-        fun _ -> Msal.getProfile() |> map (fun profile -> console.log(profile)) |> Async.StartImmediate)
+        fun _ -> 
+            let computation = async {
+                let! profileResult = Msal.getProfile ()
+
+                match profileResult with
+                | Ok profile -> console.log(profile)
+                | Error error -> console.error(error)
+            }
+
+            computation |> Async.StartImmediate)
 
     loadMailBtn.addEventListener("click", 
-        fun _ -> Msal.getMail() |> map (fun mail -> console.log(mail)) |> Async.StartImmediate)
+        fun _ -> 
+            let computation = async {
+                let! mailResult = Msal.getMail ()
+
+                match mailResult with
+                | Ok mail -> console.log(mail)
+                | Error error -> console.error(error)
+            }
+            
+            computation |> Async.StartImmediate)
 
     getUserNameBtn.addEventListener("click", 
         fun _ -> 
