@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <NpmDependencies>
-        <NpmPackage Name="@azure/msal-browser" Version="&lt; 2.0.2" ResolutionStrategy="max" />
+        <NpmPackage Name="@azure/msal-browser" Version="&gt;= 2.0.2 &lt; 3.0.0" ResolutionStrategy="max" />
     </NpmDependencies>
   </PropertyGroup>
 

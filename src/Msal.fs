@@ -1,7 +1,8 @@
 ﻿namespace Fable.Msal
 
-open Fable.Core.JsInterop
+open Fable.Core
 open Fable.Core.JS
+open Fable.Core.JsInterop
 
 type GraphEmailAddress = { address : string }
 
@@ -38,12 +39,40 @@ type MsalConfig = {
 [<RequireQualifiedAccess>]
 module Msal =
     
+    let private ofChoice x =
+        match x with
+        | Choice1Of2 o -> Ok o
+        | Choice2Of2 e -> Error e
+
+    let private map f (computation: Async<'t>) = async {
+        let! x = computation
+        return f x
+    }
+
+    let private getUserNameInterop () : string = import "getUserName" "./Msal.js"
+
+    let private getProfileInterop () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
+
+    let private getMailInterop () : GraphMailInfo Promise = import "getMail" "./Msal.js"
+
     let signIn (config : MsalConfig) : unit = import "signIn" "./Msal.js"
 
     let signOut () : unit = import "signOut" "./Msal.js"
 
-    let getUserName () : string = import "getUserName" "./Msal.js"
+    let getUserName () : string option =
+        let userName = getUserNameInterop ()
+        if System.String.IsNullOrWhiteSpace userName
+        then None
+        else Some userName
+        
+    let getProfile () : Async<Result<GraphUserInfo, exn>> =
+        getProfileInterop ()
+        |> Async.AwaitPromise
+        |> Async.Catch
+        |> map ofChoice
 
-    let getProfile () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
-
-    let getMail () : GraphMailInfo Promise = import "getMail" "./Msal.js"
+    let getMail () : Async<Result<GraphMailInfo, exn>> =
+        getMailInterop ()
+        |> Async.AwaitPromise
+        |> Async.Catch
+        |> map ofChoice
