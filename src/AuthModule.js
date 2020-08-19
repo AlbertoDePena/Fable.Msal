@@ -12,6 +12,11 @@ import { isIE } from "./Util";
  * @type {Configuration}
  */
 const MSAL_CONFIG = {
+    auth: {
+        clientId: "",
+        authority: "",
+        redirectUri: "" 
+    },
     cache: {
         cacheLocation: "sessionStorage",
         storeAuthStateInCookie: isIE,
@@ -55,16 +60,14 @@ export class AuthModule {
     // private silentProfileRequest: SilentRequest; // https://azuread.github.io/microsoft-authentication-library-for-js/ref/msal-browser/modules/_src_request_silentrequest_.html
     // private silentMailRequest: SilentRequest;
 
-    /**
-     * 
-     * @param {Configuration} config 
-     */
     constructor(config) {
-        const msalConfig = {
-            ...config,
-            ...MSAL_CONFIG
-        };
-        this.myMSALObj = new PublicClientApplication(msalConfig);
+        MSAL_CONFIG.auth.clientId = config.clientId;
+        MSAL_CONFIG.auth.authority = config.authority;
+        MSAL_CONFIG.auth.redirectUri = config.redirectUri;
+        MSAL_CONFIG.cache.cacheLocation = config.cacheLocation;
+        MSAL_CONFIG.cache.storeAuthStateInCookie = config.storeAuthStateInCookie;
+
+        this.myMSALObj = new PublicClientApplication(MSAL_CONFIG);
         this.account = null;
         this.setRequestObjects();
     }

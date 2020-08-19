@@ -1,6 +1,6 @@
 ﻿namespace Fable.Msal
 
-open Fable.Core
+open Fable.Core.JsInterop
 open Fable.Core.JS
 
 type GraphEmailAddress = { address : string }
@@ -27,25 +27,23 @@ type GraphUserInfo = {
     surname : string
     userPrincipalName : string }
 
-type MsalAuth = { 
+type MsalConfig = {
     clientId : string
     authority : string
-    redirectUri: string }
+    redirectUri: string
+    cacheLocation : string
+    storeAuthStateInCookie : bool
+    useLoginRedirect : bool }
 
-type MsalConfiguration = {
-    auth : MsalAuth
-}    
-
-type IMsal =
-    abstract SignInPopup : MsalConfiguration -> unit
-    abstract SignInRedirect : MsalConfiguration -> unit
-    abstract SignOut : unit -> unit
-    abstract GetUserName : unit -> string
-    abstract GetProfile : unit -> GraphUserInfo Promise
-    abstract GetMail : unit -> GraphMailInfo Promise
-
-[<AutoOpen>]
-module Core =
+[<RequireQualifiedAccess>]
+module Msal =
     
-    [<ImportAll("./Msal.js")>]
-    let Msal: IMsal = jsNative
+    let signIn (config : MsalConfig) : unit = import "signIn" "./Msal.js"
+
+    let signOut () : unit = import "signOut" "./Msal.js"
+
+    let getUserName () : string = import "getUserName" "./Msal.js"
+
+    let getProfile () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
+
+    let getMail () : GraphMailInfo Promise = import "getMail" "./Msal.js"

@@ -38,6 +38,16 @@ import { isIE } from "./Util";
  * @property {MailItem[]=} value
  */
 
+ /**
+  * @typedef {Object} MsalConfig - Msal most common configuration
+  * @property {String} clientId
+  * @property {String} authority
+  * @property {String} redirectUri
+  * @property {String} cacheLocation - sessionStorage or localStorage
+  * @property {Boolean} storeAuthStateInCookie
+  * @property {Boolean} useLoginRedirect - login redirect always used on IE browser
+  */
+
 // MS Graph API services
 const GRAPH_CONFIG = {
     GRAPH_ME_ENDPT: "https://graph.microsoft.com/v1.0/me",
@@ -46,47 +56,43 @@ const GRAPH_CONFIG = {
 
 let authModule = undefined;
 
-export function SignInPopup(config) {
-    if (isIE) {
-        SignInRedirect(config);
-    } else {
-        authModule = new AuthModule(config);
-        authModule.loginPopup();
-    }
-}
-
-export function SignInRedirect(config) {
+/**
+ * Sign in using login redirect or login popup
+ * @param {MsalConfig} config 
+ */
+export function signIn(config) {
     authModule = new AuthModule(config);
 
-    // Load auth module when browser window loads. Only required for redirect flows.
-    window.addEventListener("load", async () => {
-        authModule.loadAuthModule().then(() => {
-           if (authModule.account) { return; }
-           authModule.loginRedirect();
+    if (isIE || config.useLoginRedirect) {
+        // Load auth module when browser window loads. Only required for redirect flows.
+        window.addEventListener("load", async () => {
+            authModule.loadAuthModule().then(() => {
+                if (authModule.account) { return; }
+                authModule.loginRedirect();
+            });
         });
-    });
+    } else {
+        authModule.loginPopup();
+    }
 }
 
 /**
  * Called when user clicks "Sign Out"
  */
-export function SignOut() {
+export function signOut() {
     authModule.logout();
 }
 
-export function GetUserName() {
-    const account = authModule.getAccount();
-    if (!account) {
-        return "";
-    }
-    return account.username;
+export function getUserName() {
+    const account = authModule.getAccount();    
+    return account ? account.username : "";
 }
 
 /**
  * Get user profile from graph API
  * @return {Promise<UserInfo>}
  */
-export async function GetProfile() {
+export async function getProfile() {
     const token = isIE ? await authModule.getProfileTokenRedirect() : await authModule.getProfileTokenPopup();
     if (token && token.length > 0) {
         const graphResponse = await callEndpointWithToken(GRAPH_CONFIG.GRAPH_ME_ENDPT, token);
@@ -99,7 +105,7 @@ export async function GetProfile() {
  * Get user mail from graph API
  * @return {Promise<MailInfo>}
  */
-export async function GetMail() {
+export async function getMail() {
     const token = isIE ? await authModule.getMailTokenRedirect() : await authModule.getMailTokenPopup();
     if (token && token.length > 0) {
         const graphResponse = await callEndpointWithToken(GRAPH_CONFIG.GRAPH_MAIL_ENDPT, token);
@@ -116,16 +122,13 @@ export async function GetMail() {
  */
 async function callEndpointWithToken(endpoint, accessToken) {
     const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append("Authorization", bearer);
+    
+    headers.append("Authorization", `Bearer ${accessToken}`);
 
     const options = {
         method: "GET",
         headers: headers
     };
-
-    console.log('request made at: ' + new Date().toString());
 
     const response = await fetch(endpoint, options);
     return (await response.json());
