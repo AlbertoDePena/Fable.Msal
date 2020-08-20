@@ -89,6 +89,14 @@ export function getUserName() {
 }
 
 /**
+ * Get bearer token to call web API
+ * @return {Promise<String>} The bearer token
+ */
+export async function getToken() {
+    return isIE ? await authModule.getProfileTokenRedirect() : await authModule.getProfileTokenPopup();
+}
+
+/**
  * Get user profile from graph API
  * @return {Promise<UserInfo>}
  */

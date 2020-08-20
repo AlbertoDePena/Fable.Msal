@@ -12,10 +12,23 @@
         useLoginRedirect = true
     })
 
+    let getTokenBtn = document.getElementById "getTokenBtn"
     let signOutBtn = document.getElementById "signOutBtn"
     let loadProfileBtn = document.getElementById "loadProfileBtn"
     let loadMailBtn = document.getElementById "loadMailBtn"
     let getUserNameBtn = document.getElementById "getUserNameBtn"
+
+    getTokenBtn.addEventListener("click", 
+        fun _ -> 
+            let computation = async {
+                let! tokenResult = Msal.getToken ()
+
+                match tokenResult with
+                | Ok token -> console.log(token)
+                | Error error -> console.error(error)
+            }
+
+            computation |> Async.StartImmediate)
 
     signOutBtn.addEventListener("click", fun _ -> Msal.signOut())
 

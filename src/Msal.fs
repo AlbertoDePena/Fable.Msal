@@ -43,6 +43,8 @@ module internal Interop =
 
     let signOut () : unit = import "signOut" "./Msal.js"
 
+    let getToken () : string Promise = import "getToken" "./Msal.js"
+
     let getUserName () : string = import "getUserName" "./Msal.js"
 
     let getProfile () : GraphUserInfo Promise = import "getProfile" "./Msal.js"
@@ -71,6 +73,12 @@ module Msal =
     /// Trigger sign out Msal flow
     let signOut () : unit = 
         Interop.signOut ()
+
+    /// Get bearer token to call web API
+    let getToken () : Async<Result<string, exn>> =
+        Interop.getToken ()
+        |> Async.AwaitPromise
+        |> toAsyncResult
 
     /// Get user name from Msal bearer token claims
     let getUserName () : string option =
